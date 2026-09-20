@@ -23,22 +23,15 @@ export const scores: Session[] = [
   {
     date: "2026-09-18",
     players: ["Lada", "Honza", "Jenda"],
-    sreality: [1564, 2246, 38484],
-    bazos: [1111, 2222, 3333],
-    geoguessr: [1564, 2246, 38484],
+    sreality: [2659, 2123, 1685],
+    bazos: [1318, 962, 1088],
+    geoguessr: [12935, 17893, 10164],
   },
   {
     date: "2026-09-19",
     players: ["Lada", "Honza", "Jenda"],
-    sreality: [1564, 2246, 38484],
-    bazos: [4444, 2222, 3333],
-    geoguessr: [1564, 2246, 38484],
-  },
-  {
-    date: "2026-09-20",
-    players: ["Lada", "Honza", "Jenda", "Test"],
-    sreality: [1564, 2246, 38484, 4444],
-    bazos: [4444, 2222, 3333, 4444],
-    geoguessr: [1564, 2246, 38484, 4444],
+    sreality: [3511, 3139, 1767],
+    bazos: [2456, 3059, 2987],
+    geoguessr: [17304, 18046, 17921],
   },
 ];
