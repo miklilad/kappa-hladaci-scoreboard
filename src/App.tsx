@@ -3,9 +3,9 @@ import { DayCalendar } from './DayCalendar.tsx'
 import { DayResults } from './DayResults.tsx'
 import { PointsChart } from './PointsChart.tsx'
 import { Standings } from './Standings.tsx'
-import { formatDate } from './dates.ts'
+import { formatDate, formatMediumDate } from './dates.ts'
 import { pointsHistory } from './ranking.ts'
-import { scores } from './scores.ts'
+import { scores, type IsoDate } from './scores.ts'
 
 const sessions = [...scores].sort((a, b) => a.date.localeCompare(b.date))
 const playedDates = sessions.map((session) => session.date)
@@ -41,7 +41,20 @@ function App() {
       <section>
         <h2>Daily results</h2>
         <div className="day">
-          <DayCalendar playedDates={playedDates} selected={selectedDate} onSelect={setSelectedDate} />
+          <div className="day-picker">
+            <select
+              aria-label="Played day"
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value as IsoDate)}
+            >
+              {playedDates.toReversed().map((date) => (
+                <option key={date} value={date}>
+                  {formatMediumDate(date)}
+                </option>
+              ))}
+            </select>
+            <DayCalendar playedDates={playedDates} selected={selectedDate} onSelect={setSelectedDate} />
+          </div>
           <div className="day-results">
             <h3>{formatDate(session.date)}</h3>
             <DayResults session={session} />

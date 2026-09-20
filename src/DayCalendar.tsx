@@ -1,5 +1,5 @@
+import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
-import 'react-day-picker/style.css'
 import { fromIsoDate, toIsoDate } from './dates.ts'
 import type { IsoDate } from './scores.ts'
 
@@ -13,6 +13,14 @@ type Props = {
 export function DayCalendar({ playedDates, selected, onSelect }: Props) {
   const played = new Set<string>(playedDates)
 
+  // Follow the selection when it changes from outside (the date select) to another month.
+  const [month, setMonth] = useState(fromIsoDate(selected))
+  const [shownFor, setShownFor] = useState(selected)
+  if (shownFor !== selected) {
+    setShownFor(selected)
+    setMonth(fromIsoDate(selected))
+  }
+
   return (
     <DayPicker
       mode="single"
@@ -20,7 +28,8 @@ export function DayCalendar({ playedDates, selected, onSelect }: Props) {
       weekStartsOn={1}
       selected={fromIsoDate(selected)}
       onSelect={(date) => onSelect(toIsoDate(date))}
-      defaultMonth={fromIsoDate(selected)}
+      month={month}
+      onMonthChange={setMonth}
       startMonth={fromIsoDate(playedDates[0])}
       endMonth={fromIsoDate(playedDates[playedDates.length - 1])}
       disabled={(date) => !played.has(toIsoDate(date))}

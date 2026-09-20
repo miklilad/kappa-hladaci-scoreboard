@@ -18,3 +18,7 @@ export const formatDate = (iso: IsoDate) => longDate.format(fromIsoDate(iso))
 const shortDate = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
 
 export const formatShortDate = (iso: IsoDate) => shortDate.format(fromIsoDate(iso))
+
+const mediumDate = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+
+export const formatMediumDate = (iso: IsoDate) => mediumDate.format(fromIsoDate(iso))
