@@ -1,0 +1,181 @@
+:root {
+  color-scheme: light dark;
+  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --text: #1d1c1a;
+  --muted: #6d6a63;
+  --border: #e2dfd6;
+  --accent: #b7791f;
+  --accent-bg: #fbf0d9;
+
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15161a;
+    --surface: #1e2026;
+    --text: #ecebe6;
+    --muted: #9a988f;
+    --border: #2f323b;
+    --accent: #e9b949;
+    --accent-bg: #3a2f14;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+h1 {
+  margin: 0 0 2rem;
+  font-size: 1.75rem;
+}
+
+h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+section + section {
+  margin-top: 2.5rem;
+}
+
+.hint {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Tables */
+
+.table-scroll {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  padding: 0.625rem 1rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+thead th {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr + tr > * {
+  border-top: 1px solid var(--border);
+}
+
+tbody th {
+  font-weight: 600;
+}
+
+.num {
+  text-align: right;
+}
+
+.points {
+  font-weight: 700;
+}
+
+.result {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.medal,
+.place {
+  display: inline-block;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.medal {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.place {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.score {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Daily results */
+
+.day {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.day-results {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+/* Calendar (react-day-picker) */
+
+.rdp-root {
+  --rdp-accent-color: var(--accent);
+  --rdp-accent-background-color: var(--accent-bg);
+  --rdp-day-width: 2.5rem;
+  --rdp-day-height: 2.5rem;
+  --rdp-day_button-width: 2.375rem;
+  --rdp-day_button-height: 2.375rem;
+  --rdp-disabled-opacity: 0.35;
+
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.rdp-day.played .rdp-day_button {
+  font-weight: 700;
+  background: var(--accent-bg);
+}
+
+.rdp-day.played:not(.rdp-selected) .rdp-day_button:hover {
+  border-color: var(--accent);
+}
+
+.rdp-selected .rdp-day_button {
+  color: var(--bg);
+  background: var(--accent);
+}
