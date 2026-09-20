@@ -14,3 +14,7 @@ export function toIsoDate(date: Date): IsoDate {
 const longDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'full' })
 
 export const formatDate = (iso: IsoDate) => longDate.format(fromIsoDate(iso))
+
+const shortDate = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' })
+
+export const formatShortDate = (iso: IsoDate) => shortDate.format(fromIsoDate(iso))

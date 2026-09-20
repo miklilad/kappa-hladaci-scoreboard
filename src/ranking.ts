@@ -1,4 +1,4 @@
-import { GAMES, GAME_INFO, type Game, type Session } from './scores.ts'
+import { GAMES, GAME_INFO, type Game, type IsoDate, type Session } from './scores.ts'
 
 export type Placement = {
   /** Raw score from the game. */
@@ -70,4 +70,31 @@ export function overallStandings(sessions: Session[]): Standing[] {
     ...total,
     rank: sorted.findIndex((other) => compareStandings(other, total) === 0) + 1,
   }))
+}
+
+export type PointsHistory = {
+  dates: IsoDate[]
+  /** One entry per player, in order of first appearance; `totals` is indexed like `dates`. */
+  series: { player: string; totals: number[] }[]
+}
+
+/** Running point totals after each session. Sessions must be in date order. */
+export function pointsHistory(sessions: Session[]): PointsHistory {
+  const series = new Map<string, number[]>()
+
+  sessions.forEach((session, day) => {
+    for (const row of rankDay(session)) {
+      // A player who joins later has 0 points on the days before.
+      const totals = series.get(row.player) ?? Array<number>(day).fill(0)
+      totals[day] = (totals[day - 1] ?? 0) + row.points
+      series.set(row.player, totals)
+    }
+    // Players who sat this day out keep their total.
+    for (const totals of series.values()) totals[day] ??= totals[day - 1]
+  })
+
+  return {
+    dates: sessions.map((session) => session.date),
+    series: [...series].map(([player, totals]) => ({ player, totals })),
+  }
 }

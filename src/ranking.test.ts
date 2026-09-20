@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { overallStandings, rankDay, rankScores } from './ranking.ts'
+import { overallStandings, pointsHistory, rankDay, rankScores } from './ranking.ts'
 import type { Session } from './scores.ts'
 
 describe('rankScores', () => {
@@ -68,5 +68,23 @@ describe('overallStandings', () => {
       session('2026-01-02', ['A', 'B'], [1, 2]),
     ])
     expect(standings.map((s) => s.rank)).toEqual([1, 1])
+  })
+})
+
+describe('pointsHistory', () => {
+  it('keeps a running total per player, covering late joiners and skipped days', () => {
+    const history = pointsHistory([
+      session('2026-01-01', ['A', 'B'], [2, 1]),
+      session('2026-01-02', ['A', 'C'], [1, 2]),
+      session('2026-01-03', ['B', 'C'], [2, 1]),
+    ])
+    expect(history).toEqual({
+      dates: ['2026-01-01', '2026-01-02', '2026-01-03'],
+      series: [
+        { player: 'A', totals: [6, 9, 9] },
+        { player: 'B', totals: [3, 3, 9] },
+        { player: 'C', totals: [0, 6, 9] },
+      ],
+    })
   })
 })
