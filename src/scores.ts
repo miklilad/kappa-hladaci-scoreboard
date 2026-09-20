@@ -34,4 +34,11 @@ export const scores: Session[] = [
     bazos: [2456, 3059, 2987],
     geoguessr: [17304, 18046, 17921],
   },
+  {
+    date: "2026-09-20",
+    players: ["Laďa", "Honza", "Jenda"],
+    sreality: [2684, 3320, 2805],
+    bazos: [947, 1086, 1189],
+    geoguessr: [21898, 20385, 16868],
+  },
 ];
