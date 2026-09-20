@@ -5,17 +5,20 @@
   color-scheme: light dark;
   font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  --bg: #f6f5f1;
+  --bg: #edf1f7;
+  --bg-top: #dfe8f3;
   --surface: #ffffff;
-  --text: #1d1c1a;
-  --muted: #6d6a63;
-  --border: #e2dfd6;
-  --accent: #b7791f;
-  --accent-bg: #fbf0d9;
+  --tint: #f3f6fb;
+  --text: #172033;
+  --heading: #1f3a5f;
+  --muted: #5e6b80;
+  --border: #d7dfea;
+  --accent: #3b6ea8;
+  --accent-bg: #e1ebf7;
 
   /* Chart: recessive chrome plus the categorical series colours (validated per theme). */
-  --grid: #ebe9e2;
-  --axis: #c9c6bb;
+  --grid: #e6ebf2;
+  --axis: #c2ccd9;
   --series-1: #2a78d6;
   --series-2: #eb6834;
   --series-3: #1baf7a;
@@ -31,16 +34,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #15161a;
-    --surface: #1e2026;
-    --text: #ecebe6;
-    --muted: #9a988f;
-    --border: #2f323b;
-    --accent: #e9b949;
-    --accent-bg: #3a2f14;
+    --bg: #10151d;
+    --bg-top: #16202e;
+    --surface: #182029;
+    --tint: #1c2632;
+    --text: #e6ebf2;
+    --heading: #c5d8ef;
+    --muted: #8f9bad;
+    --border: #28323f;
+    --accent: #7aa7d9;
+    --accent-bg: #1f3148;
 
-    --grid: #2a2d35;
-    --axis: #3d414c;
+    --grid: #222b37;
+    --axis: #384454;
     --series-1: #3987e5;
     --series-2: #d95926;
     --series-3: #199e70;
@@ -54,6 +60,8 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(var(--bg-top), var(--bg) 24rem) no-repeat;
 }
 
 main {
@@ -62,9 +70,31 @@ main {
   padding: 2rem 1rem 4rem;
 }
 
+h1,
+h2,
+h3 {
+  color: var(--heading);
+}
+
 h1 {
-  margin: 0 0 2rem;
-  font-size: 1.75rem;
+  margin: 0.5rem 0 2.5rem;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Short accent rule under the title. */
+h1::after {
+  content: '';
+  display: block;
+  width: 3.5rem;
+  height: 4px;
+  margin: 0.875rem auto 0;
+  background: var(--accent);
+  border-radius: 2px;
 }
 
 h2 {
@@ -113,6 +143,7 @@ thead th {
   color: var(--muted);
   font-size: 0.8125rem;
   font-weight: 600;
+  background: var(--tint);
   border-bottom: 1px solid var(--border);
 }
 
