@@ -22,14 +22,14 @@ export type Session = {
 export const scores: Session[] = [
   {
     date: "2026-09-18",
-    players: ["Lada", "Honza", "Jenda"],
+    players: ["Laďa", "Honza", "Jenda"],
     sreality: [2659, 2123, 1685],
     bazos: [1318, 962, 1088],
     geoguessr: [12935, 17893, 10164],
   },
   {
     date: "2026-09-19",
-    players: ["Lada", "Honza", "Jenda"],
+    players: ["Laďa", "Honza", "Jenda"],
     sreality: [3511, 3139, 1767],
     bazos: [2456, 3059, 2987],
     geoguessr: [17304, 18046, 17921],
