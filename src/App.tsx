@@ -5,13 +5,20 @@ import { PointsChart } from './PointsChart.tsx'
 import { Standings } from './Standings.tsx'
 import { formatDate, formatMediumDate } from './dates.ts'
 import { pointsHistory } from './ranking.ts'
-import { scores, type IsoDate } from './scores.ts'
+import { GAMES, GAME_INFO, scores, type Game, type IsoDate } from './scores.ts'
 
 const sessions = [...scores].sort((a, b) => a.date.localeCompare(b.date))
 const playedDates = sessions.map((session) => session.date)
-const history = pointsHistory(sessions)
+
+type View = 'overall' | Game
+
+const VIEWS: { view: View; label: string }[] = [
+  { view: 'overall', label: 'Overall' },
+  ...GAMES.map((game) => ({ view: game, label: GAME_INFO[game].label })),
+]
 
 function App() {
+  const [view, setView] = useState<View>('overall')
   const [selectedDate, setSelectedDate] = useState(playedDates[playedDates.length - 1])
   const session = sessions.find((s) => s.date === selectedDate)
 
@@ -24,43 +31,61 @@ function App() {
     )
   }
 
+  const game = view === 'overall' ? undefined : view
+
   return (
     <main>
       <h1>Hladači scoreboard</h1>
 
-      <section>
-        <h2>Overall standings</h2>
-        <p className="hint">
-          Running total over {sessions.length} {sessions.length === 1 ? 'day' : 'days'}.
-        </p>
-        <Standings sessions={sessions} />
-        <h3 className="chart-title">Points over time</h3>
-        <PointsChart history={history} />
-      </section>
+      <nav className="segmented" aria-label="View">
+        {VIEWS.map((option) => (
+          <button
+            key={option.view}
+            type="button"
+            aria-pressed={option.view === view}
+            onClick={() => setView(option.view)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </nav>
 
       <section>
-        <h2>Daily results</h2>
-        <div className="day">
-          <div className="day-picker">
-            <select
-              aria-label="Played day"
-              value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value as IsoDate)}
-            >
-              {playedDates.toReversed().map((date) => (
-                <option key={date} value={date}>
-                  {formatMediumDate(date)}
-                </option>
-              ))}
-            </select>
-            <DayCalendar playedDates={playedDates} selected={selectedDate} onSelect={setSelectedDate} />
-          </div>
-          <div className="day-results">
-            <h3>{formatDate(session.date)}</h3>
-            <DayResults session={session} />
-          </div>
-        </div>
+        <h2>{game ? `${GAME_INFO[game].label} standings` : 'Overall standings'}</h2>
+        <p className="hint">
+          Running total over {sessions.length} {sessions.length === 1 ? 'day' : 'days'}
+          {game ? ', counting this game only.' : ', all games.'}
+        </p>
+        <Standings sessions={sessions} game={game} />
+        <h3 className="chart-title">Points over time</h3>
+        <PointsChart history={pointsHistory(sessions, game && [game])} />
       </section>
+
+      {!game && (
+        <section>
+          <h2>Daily results</h2>
+          <div className="day">
+            <div className="day-picker">
+              <select
+                aria-label="Played day"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value as IsoDate)}
+              >
+                {playedDates.toReversed().map((date) => (
+                  <option key={date} value={date}>
+                    {formatMediumDate(date)}
+                  </option>
+                ))}
+              </select>
+              <DayCalendar playedDates={playedDates} selected={selectedDate} onSelect={setSelectedDate} />
+            </div>
+            <div className="day-results">
+              <h3>{formatDate(session.date)}</h3>
+              <DayResults session={session} />
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

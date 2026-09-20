@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { overallStandings, pointsHistory, rankDay, rankScores } from './ranking.ts'
+import { overallStandings, pointsHistory, rankDay, rankScores, scoreTotals } from './ranking.ts'
 import type { Session } from './scores.ts'
 
 describe('rankScores', () => {
@@ -86,5 +86,33 @@ describe('pointsHistory', () => {
         { player: 'C', totals: [0, 6, 9] },
       ],
     })
+  })
+})
+
+describe('per game', () => {
+  const sessions: Session[] = [
+    { date: '2026-01-01', players: ['A', 'B'], sreality: [10, 20], bazos: [5, 1], geoguessr: [1, 2] },
+    { date: '2026-01-02', players: ['A', 'B'], sreality: [30, 40], bazos: [7, 2], geoguessr: [1, 2] },
+  ]
+
+  it('counts only the given game in the standings', () => {
+    expect(overallStandings(sessions, ['bazos'])).toEqual([
+      { player: 'A', rank: 1, points: 4, gold: 2, silver: 0, bronze: 0 },
+      { player: 'B', rank: 2, points: 2, gold: 0, silver: 2, bronze: 0 },
+    ])
+  })
+
+  it('counts only the given game in the history', () => {
+    expect(pointsHistory(sessions, ['sreality']).series).toEqual([
+      { player: 'A', totals: [1, 2] },
+      { player: 'B', totals: [2, 4] },
+    ])
+  })
+
+  it('sums raw scores', () => {
+    expect([...scoreTotals(sessions, 'sreality')]).toEqual([
+      ['A', 40],
+      ['B', 60],
+    ])
   })
 })
