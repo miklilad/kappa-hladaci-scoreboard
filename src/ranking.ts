@@ -20,7 +20,7 @@ export type DayRow = {
 export type Standing = MedalCounts & {
   player: string
   points: number
-  /** 1-based; players equal on points and medals share a rank. */
+  /** 1-based; players the tie-breaks cannot separate share a rank. */
   rank: number
 }
 
@@ -46,14 +46,20 @@ export function rankDay(session: Session): DayRow[] {
 
 const MEDALS = ['gold', 'silver', 'bronze'] as const
 
-const compareStandings = (a: Omit<Standing, 'rank'>, b: Omit<Standing, 'rank'>) =>
-  b.points - a.points || b.gold - a.gold || b.silver - a.silver || b.bronze - a.bronze
+type Total = Omit<Standing, 'rank'>
+
+const compareMedals = (a: Total, b: Total) => b.gold - a.gold || b.silver - a.silver || b.bronze - a.bronze
 
 const sumPoints = (row: DayRow, games: readonly Game[]) => games.reduce((sum, game) => sum + row.games[game].points, 0)
 
-/** Running totals over all given sessions, best first. Pass `games` to count only some of the games. */
+/**
+ * Running totals over all given sessions, best first. Pass `games` to count only some of the games.
+ *
+ * Ties on points are broken by medals. For a single game the summed raw score decides first;
+ * across games raw scores are not comparable, so there it is medals only.
+ */
 export function overallStandings(sessions: Session[], games: readonly Game[] = GAMES): Standing[] {
-  const totals = new Map<string, Omit<Standing, 'rank'>>()
+  const totals = new Map<string, Total>()
 
   for (const session of sessions) {
     for (const row of rankDay(session)) {
@@ -67,32 +73,38 @@ export function overallStandings(sessions: Session[], games: readonly Game[] = G
     }
   }
 
-  const sorted = [...totals.values()].sort((a, b) => compareStandings(a, b) || a.player.localeCompare(b.player))
+  const compareScores = (a: Total, b: Total) => {
+    if (games.length !== 1) return 0
+    const scores = scoreTotals(sessions, games[0])
+    const difference = (scores.get(b.player) ?? 0) - (scores.get(a.player) ?? 0)
+    return GAME_INFO[games[0]].higherIsBetter ? difference : -difference
+  }
+  const compare = (a: Total, b: Total) => b.points - a.points || compareScores(a, b) || compareMedals(a, b)
+
+  const sorted = [...totals.values()].sort((a, b) => compare(a, b) || a.player.localeCompare(b.player))
   return sorted.map((total) => ({
     ...total,
-    rank: sorted.findIndex((other) => compareStandings(other, total) === 0) + 1,
+    rank: sorted.findIndex((other) => compare(other, total) === 0) + 1,
   }))
 }
 
+/** Running totals per player; used for points and for raw scores alike. */
 export type PointsHistory = {
   dates: IsoDate[]
   /** One entry per player, in order of first appearance; `totals` is indexed like `dates`. */
   series: { player: string; totals: number[] }[]
 }
 
-/**
- * Running point totals after each session. Sessions must be in date order.
- * Pass `games` to count only some of the games.
- */
-export function pointsHistory(sessions: Session[], games: readonly Game[] = GAMES): PointsHistory {
+/** Accumulates each session's `[player, value]` gains. Sessions must be in date order. */
+function runningTotals(sessions: Session[], gains: (session: Session) => [player: string, value: number][]): PointsHistory {
   const series = new Map<string, number[]>()
 
   sessions.forEach((session, day) => {
-    for (const row of rankDay(session)) {
-      // A player who joins later has 0 points on the days before.
-      const totals = series.get(row.player) ?? Array<number>(day).fill(0)
-      totals[day] = (totals[day - 1] ?? 0) + sumPoints(row, games)
-      series.set(row.player, totals)
+    for (const [player, value] of gains(session)) {
+      // A player who joins later has 0 on the days before.
+      const totals = series.get(player) ?? Array<number>(day).fill(0)
+      totals[day] = (totals[day - 1] ?? 0) + value
+      series.set(player, totals)
     }
     // Players who sat this day out keep their total.
     for (const totals of series.values()) totals[day] ??= totals[day - 1]
@@ -102,6 +114,16 @@ export function pointsHistory(sessions: Session[], games: readonly Game[] = GAME
     dates: sessions.map((session) => session.date),
     series: [...series].map(([player, totals]) => ({ player, totals })),
   }
+}
+
+/** Running point totals after each session. Pass `games` to count only some of the games. */
+export function pointsHistory(sessions: Session[], games: readonly Game[] = GAMES): PointsHistory {
+  return runningTotals(sessions, (session) => rankDay(session).map((row) => [row.player, sumPoints(row, games)]))
+}
+
+/** Running totals of the raw scores in one game after each session. */
+export function scoreHistory(sessions: Session[], game: Game): PointsHistory {
+  return runningTotals(sessions, (session) => session.players.map((player, i) => [player, session[game][i]]))
 }
 
 /** Each player's raw scores in one game, summed over all sessions. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { overallStandings, pointsHistory, rankDay, rankScores, scoreTotals } from './ranking.ts'
+import { overallStandings, pointsHistory, rankDay, rankScores, scoreHistory, scoreTotals } from './ranking.ts'
 import type { Session } from './scores.ts'
 
 describe('rankScores', () => {
@@ -106,6 +106,26 @@ describe('per game', () => {
     expect(pointsHistory(sessions, ['sreality']).series).toEqual([
       { player: 'A', totals: [1, 2] },
       { player: 'B', totals: [2, 4] },
+    ])
+  })
+
+  it('breaks a points tie in a single game by the summed raw score', () => {
+    const tied: Session[] = [
+      { date: '2026-01-01', players: ['A', 'B'], sreality: [10, 20], bazos: [0, 0], geoguessr: [0, 0] },
+      { date: '2026-01-02', players: ['A', 'B'], sreality: [55, 40], bazos: [0, 0], geoguessr: [0, 0] },
+    ]
+    expect(overallStandings(tied, ['sreality']).map((s) => [s.player, s.rank, s.points])).toEqual([
+      ['A', 1, 3],
+      ['B', 2, 3],
+    ])
+    // Across all games raw scores do not count, so the two stay level.
+    expect(overallStandings(tied).map((s) => s.rank)).toEqual([1, 1])
+  })
+
+  it('keeps a running total of raw scores', () => {
+    expect(scoreHistory(sessions, 'sreality').series).toEqual([
+      { player: 'A', totals: [10, 40] },
+      { player: 'B', totals: [20, 60] },
     ])
   })
 

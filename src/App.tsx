@@ -4,7 +4,7 @@ import { DayResults } from './DayResults.tsx'
 import { PointsChart } from './PointsChart.tsx'
 import { Standings } from './Standings.tsx'
 import { formatDate, formatMediumDate } from './dates.ts'
-import { pointsHistory } from './ranking.ts'
+import { pointsHistory, scoreHistory } from './ranking.ts'
 import { GAMES, GAME_INFO, scores, type Game, type IsoDate } from './scores.ts'
 
 const sessions = [...scores].sort((a, b) => a.date.localeCompare(b.date))
@@ -59,6 +59,13 @@ function App() {
         <Standings sessions={sessions} game={game} />
         <h3 className="chart-title">Points over time</h3>
         <PointsChart history={pointsHistory(sessions, game && [game])} />
+        {game && (
+          <>
+            <h3 className="chart-title">Score over time</h3>
+            <p className="hint">Raw {GAME_INFO[game].label} scores added up day by day.</p>
+            <PointsChart history={scoreHistory(sessions, game)} unit="score" />
+          </>
+        )}
       </section>
 
       {!game && (

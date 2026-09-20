@@ -12,6 +12,9 @@ const MIN_X_LABEL_GAP = 56
 const MIN_MARKER_GAP = 16
 const SERIES_COLORS = 8
 
+const formatValue = new Intl.NumberFormat()
+const formatTick = new Intl.NumberFormat(undefined, { notation: 'compact' })
+
 /** Colour follows the player (order of first appearance), never the current rank. */
 const seriesColor = (index: number) => (index < SERIES_COLORS ? `var(--series-${index + 1})` : 'var(--muted)')
 
@@ -35,7 +38,13 @@ function useWidth() {
   return [ref, width] as const
 }
 
-export function PointsChart({ history }: { history: PointsHistory }) {
+type Props = {
+  history: PointsHistory
+  /** What the totals count, for the accessible description. */
+  unit?: string
+}
+
+export function PointsChart({ history, unit = 'point' }: Props) {
   const { dates, series } = history
   const [ref, width] = useWidth()
   const [active, setActive] = useState<number | null>(null)
@@ -87,7 +96,7 @@ export function PointsChart({ history }: { history: PointsHistory }) {
         className="chart-plot"
         tabIndex={0}
         role="group"
-        aria-label="Line chart of each player's running point total. Use the left and right arrow keys to read the values day by day."
+        aria-label={`Line chart of each player's running ${unit} total. Use the left and right arrow keys to read the values day by day.`}
         onFocus={() => setActive((day) => day ?? last)}
         onBlur={() => setActive(null)}
         onKeyDown={handleKeyDown}
@@ -110,7 +119,7 @@ export function PointsChart({ history }: { history: PointsHistory }) {
                   y2={y(tick)}
                 />
                 <text className="chart-tick" x={MARGIN.left - 8} y={y(tick)} dy="0.32em" textAnchor="end">
-                  {tick}
+                  {formatTick.format(tick)}
                 </text>
               </g>
             ))}
@@ -172,9 +181,9 @@ export function PointsChart({ history }: { history: PointsHistory }) {
               .map((s) => (
                 <div key={s.player} className="chart-tooltip-row">
                   <span className="line-key" style={{ background: s.color }} />
-                  <strong>{s.totals[active]}</strong>
+                  <strong>{formatValue.format(s.totals[active])}</strong>
                   <span>{s.player}</span>
-                  <span className="chart-tooltip-gain">+{s.totals[active] - (s.totals[active - 1] ?? 0)}</span>
+                  <span className="chart-tooltip-gain">+{formatValue.format(s.totals[active] - (s.totals[active - 1] ?? 0))}</span>
                 </div>
               ))}
           </div>
@@ -201,7 +210,7 @@ export function PointsChart({ history }: { history: PointsHistory }) {
                   <th scope="row">{formatShortDate(date)}</th>
                   {series.map((s) => (
                     <td className="num" key={s.player}>
-                      {s.totals[day]}
+                      {formatValue.format(s.totals[day])}
                     </td>
                   ))}
                 </tr>
